@@ -1,0 +1,114 @@
+{
+  "name": "Базовая зона",
+  "description": "Реализация логики работы базовой зоны",
+  "longdetector": 0,
+  "params": [
+    {
+      "type": "text",
+      "name": "name",
+      "req": true,
+      "res": {
+        "label": "Имя зоны",
+        "placeholder": "Введите имя",
+        "reg": "^.{3,20}$"
+      }
+    },
+    {
+      "type": "switch",
+      "name": "active",
+      "req": true,
+      "def": true,
+      "res": {
+        "label": "Включить зону"
+      }
+    },
+    {
+      "type": "select_partition",
+      "name": "partition",
+      "req": true,
+      "res": {
+        "label": "Select partition",
+        "database": [
+          {
+            "selector": "SELECT Partition.id FROM Partition WHERE Partition.Type = ?"
+          }
+        ]
+      }
+    },
+    {
+      "type": "select",
+      "name": "device",
+      "req": true,
+      "res": {
+        "label": "Select device",
+        "format": "&lt;{id}&gt; &lt;({type})&gt;",
+        "return": "id",
+        "format_reg": "<([^<]*)\\{([\\w\\%\\.]+)(?>@([\\w]+))?\\}([^>]*)>",
+        "database": [
+          {
+            "values": ["id", "type"],
+            "selector": "SELECT D.id, D.type from Device as D WHERE D.id NOT IN (\n  SELECT DISTINCT DR.deviceId FROM DeviceResource as DR\n        LEFT JOIN ResourceHub RH on RH.Id = DR.ResourceId\n        LEFT JOIN ScriptInstanceAndResourceBinding SIARB on RH.Id = SIARB.ResourceId\n        LEFT JOIN ScriptInstance SI on SI.Id = SIARB.ScriptInstanceId\n        LEFT JOIN Script S on S.Id = SI.ScriptId WHERE S.Path='/etc/prime/scripts/prime_base_zone/prime_base_zone.py'\n    )"
+          }
+        ]
+      }
+    }
+
+  ],
+  "post": [
+    { "variables": ["device"],
+      "name": "Power_supply_12_24_V_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 1 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "AC_power_supply_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 2 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "Battery_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 3 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "General_malfunction_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 5 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "Wired_interface_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 21 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "type": "select_dresource",
+      "name": "Radio_channel_interface_resource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 22 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "Communication_control_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 23 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "WI_FI_interface_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 24 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "Ethernet_interface_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 28 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "USB_interface_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 29 AND DR.DeviceId=?"
+    },
+    { "variables": ["device"],
+      "name": "Device_resource",
+      "type": "select_dresource",
+      "selector":"SELECT DR.Id FROM DeviceResource AS DR WHERE DR.Type = 0 AND DR.DeviceId=?"
+    }
+  ]
+}
